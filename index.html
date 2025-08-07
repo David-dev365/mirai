@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mirai - Your Everything App</title>
+    <script type="importmap">
+    {
+      "imports": {
+        "firebase/": "https://esm.sh/firebase@12.0.0/",
+        "react/": "https://esm.sh/react@19.1.1/",
+        "react": "https://esm.sh/react@19.1.1",
+        "react-dom/": "https://esm.sh/react-dom@19.1.1/",
+        "@google/genai": "https://esm.sh/@google/genai@1.12.0",
+        "aframe": "https://esm.sh/aframe@1.7.1"
+      }
+    }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --mouse-x: 0;
+        --mouse-y: 0;
+      }
+      /* Custom scrollbar for a more modern look */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #111827;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #4f46e5;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #6366f1;
+      }
+      
+      body {
+        background-color: #030409;
+        background-image: radial-gradient(ellipse at center, hsl(220, 40%, 8%) 0%, #030409 100%);
+        overflow-x: hidden;
+      }
+
+      @keyframes move-twinkle-back {
+        from { background-position: 0 0; }
+        to { background-position: -10000px 5000px; }
+      }
+      
+      #stars-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 100vh;
+        display: block;
+        z-index: -1;
+        transform: translate(calc(var(--mouse-x) * 1px), calc(var(--mouse-y) * 1px));
+        transition: transform 0.2s ease-out;
+      }
+
+      .stars {
+        background: transparent url(https://www.script-tutorials.com/demos/360/images/stars.png) repeat top center;
+      }
+
+      .twinkling {
+        background: transparent url(https://www.script-tutorials.com/demos/360/images/twinkles.png) repeat top center;
+        animation: move-twinkle-back 200s linear infinite;
+      }
+
+      #stars-container .stars, #stars-container .twinkling {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .animate-fade-in {
+        animation: fade-in 0.7s ease-in-out forwards;
+      }
+      
+      @keyframes boot-container-fade-out {
+        from { opacity: 1; }
+        to { opacity: 0; pointer-events: none; }
+      }
+
+      @keyframes boot-line-appear {
+        from { transform: scaleX(0); opacity: 0; }
+        to { transform: scaleX(1); opacity: 1; }
+      }
+
+      @keyframes boot-line-glitch {
+        0% { transform: translateY(0); }
+        25% { transform: translateY(-1px); }
+        50% { transform: translateY(1px); }
+        75% { transform: translateY(-2px) scaleY(1.1); }
+        100% { transform: translateY(0); }
+      }
+
+      @keyframes boot-line-dissolve {
+        from { transform: scaleY(1); opacity: 1; }
+        to { transform: scaleY(50); opacity: 0; }
+      }
+
+      @keyframes boot-particle-explode {
+        0% {
+          transform: translate(0, 0) scale(0);
+          opacity: 0;
+        }
+        20% {
+          opacity: 1;
+        }
+        100% {
+          transform: translate(var(--particle-end-x), var(--particle-end-y)) scale(1);
+          opacity: 0;
+        }
+      }
+
+      @keyframes boot-logo-materialize {
+        from {
+          opacity: 0;
+          transform: scale(0.8);
+          filter: blur(20px) brightness(3);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+          filter: blur(0) brightness(1) drop-shadow(0 0 15px white);
+        }
+      }
+
+      @keyframes boot-final-shockwave {
+        from {
+          transform: scale(0.5);
+          opacity: 0.7;
+          border: 2px solid white;
+        }
+        to {
+          transform: scale(50);
+          opacity: 0;
+          border: 2px solid white;
+        }
+      }
+
+      @keyframes module-deploy {
+          from {
+              transform: var(--module-start-transform) scale(0);
+              opacity: 0;
+          }
+          to {
+              transform: var(--module-end-transform) scale(1);
+              opacity: 1;
+          }
+      }
+
+      @keyframes holo-ring-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      @keyframes exo-pulse {
+        0%, 100% {
+          transform: scale(1);
+          box-shadow: 0 0 20px 5px rgba(234, 179, 8, 0.3), 0 0 10px 2px rgba(251, 146, 60, 0.4) inset;
+        }
+        50% {
+          transform: scale(1.05);
+          box-shadow: 0 0 40px 10px rgba(234, 179, 8, 0.5), 0 0 15px 4px rgba(251, 146, 60, 0.6) inset;
+        }
+      }
+      
+      @keyframes background-pan {
+        from { background-position: 0% 0%; }
+        to { background-position: -200% -200%; }
+      }
+
+      @keyframes text-flicker {
+        0% { opacity: 0.8; text-shadow: 0 0 2px #06b6d4; }
+        5% { opacity: 1; text-shadow: 0 0 5px #06b6d4; }
+        10% { opacity: 0.7; }
+        15% { opacity: 1; }
+        25% { opacity: 0.6; text-shadow: 0 0 3px #06b6d4; }
+        30% { opacity: 1; }
+        40% { opacity: 0.8; }
+        42% { opacity: 0.4; }
+        44% { opacity: 1; }
+        100% { opacity: 1; text-shadow: 0 0 2px #06b6d4; }
+      }
+
+      @keyframes terminal-blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+      }
+      
+      @keyframes card-enter {
+        from {
+          opacity: 0;
+          transform: translateY(20px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      
+      @keyframes text-reveal {
+        from {
+          width: 0;
+        }
+        to {
+          width: 100%;
+        }
+      }
+
+      @keyframes scanline {
+        0% {
+          transform: translateY(-100%);
+        }
+        100% {
+          transform: translateY(100%);
+        }
+      }
+      
+      @keyframes glitch {
+        0% {
+          transform: translate(0);
+        }
+        20% {
+          transform: translate(-2px, 2px);
+        }
+        40% {
+          transform: translate(-2px, -2px);
+        }
+        60% {
+          transform: translate(2px, 2px);
+        }
+        80% {
+          transform: translate(2px, -2px);
+        }
+        100% {
+          transform: translate(0);
+        }
+      }
+
+    </style>
+<script>navigator.serviceWorker.register("service-worker.js")</script> 
+<link rel="manifest" href="manifest.json" />  <link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="stars-container">
+      <div class="stars"></div>
+      <div class="twinkling"></div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
